@@ -5,23 +5,21 @@ import Task from "../Task/";
 import './style.scss';
 
 const TaskList = ({
-  filterTasks,
+  newArrTasks,
   setFlagEdit,
   deleteTask,
-  chahgeCheckBox,
   flagEdit,
-  changeTask,
+  chahgeCheckBox
 }) => (
   <ul className="task-list">
-    {filterTasks.map((item) => 
+    {newArrTasks.map((item, index) => 
       <Task 
         key={`item-${item.id}`}
         item={item}
         setFlagEdit={setFlagEdit}
         deleteTask={deleteTask}
-        chahgeCheckBox={chahgeCheckBox}
         flagEdit={flagEdit}
-        changeTask={changeTask}
+        chahgeCheckBox={chahgeCheckBox}
       />
     )}
   </ul>

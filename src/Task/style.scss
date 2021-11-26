@@ -6,10 +6,15 @@
   margin: 1%;
   border: solid 2px;
   border-radius: 10px;
+  font-size: 20px;
 
   p {
+    align-self: center;
     width: 40%;
+    margin: 20px 0;
   }
 
-  
+  .check.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked {
+    color: darkturquoise;
+  }  
 }

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 import TaskList from '../TaskList';
-import Button from '../Button/'
+import Button from '../Button/';
+import { Pagination } from 'antd';
+
+
 
 import UpButtonImg from '../images/up.png'
 import DownButtonImg from '../images/down.png'
@@ -18,12 +21,13 @@ const MainContainer = () => {
   const [flagFilter, setFlagFilter] = useState('All');
   const [flagSort, setFlagSort] = useState('Down');
   const [flagEdit, setFlagEdit] = useState('');
-  const [newArrTasks, setNewArrTasks] = useState(allTasks);
-  const date = new Date();
-  
+  const [newArrTasks, setNewArrTasks] = useState([]);
+  const [pageNumber, setPageNumber] = useState(0);
+  const [countItems, setCountItems] = useState(0);
+
   useEffect (() => {
-    let filterTasks = [];
     const _ = require('lodash');
+    let filterTasks = [];
 
     localStorage.setItem('allTasks', JSON.stringify(allTasks));
 
@@ -37,16 +41,17 @@ const MainContainer = () => {
   
     if (flagSort === 'Down') filterTasks = _.sortBy(filterTasks, 'Date').reverse();
 
+
+    setCountItems(filterTasks.length);
+
+    filterTasks = filterTasks.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
+
+    if (filterTasks.length === 0 && pageNumber !== 0) setPageNumber(pageNumber -1);
+
     setNewArrTasks(filterTasks);
 
-  }, [allTasks, flagEdit, flagFilter, flagSort]);
+  }, [allTasks, flagEdit, flagFilter, flagSort, pageNumber]);
 
-  const chahgeCheckBox = (item) => {
-    item.isCheck = !item.isCheck;
-    localStorage.setItem('allTasks', JSON.stringify(allTasks));
-    setAllTasks(JSON.parse(localStorage.getItem('allTasks')));
-  }
-  
   const entertTask = (e) => {
     if (e.code === 'Enter') {
       const trimTextInput = textInput.trim().replace(/ /g, "");
@@ -56,22 +61,36 @@ const MainContainer = () => {
         id: Math.round(Math.random() * 10000000),
         name: trimTextInput,
         isCheck: false,
-        Date: `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}--${date.getHours()}:${date.getMinutes()}`
+        Date: new Date().toLocaleString()
       };
       setAllTasks([...allTasks, task])
       setTextInput('');
+
+      setPageNumber(0);
+      setFlagFilter('All');
+      setFlagSort('Down');
     }
   }
 
-  const changeTask = (e, item) => {
-    if (e.code === 'Enter') {
-      item.name = e.target.value;
-      setFlagEdit('');
-    }
+  const handlerPageNumber = (page, pageSize) => setPageNumber(page - 1);
 
-    if (e.code === 'Escape') {
-      setFlagEdit('');
-    }
+  const handleFilter = (newFilter) => {
+    setFlagFilter(newFilter)
+    setPageNumber(0);
+  }
+
+  const chahgeCheckBox = (id) => {
+    setAllTasks(allTasks.map(item => {
+      if (item.id === id) {
+        item.isCheck = !item.isCheck
+      }
+      return item;
+    }))
+  }
+
+  const handleSort = (newSort) => {
+    setFlagSort(newSort)
+    setPageNumber(0);
   }
 
   const deleteTask = (id) => setAllTasks(allTasks.filter(element => element.id !== id));
@@ -94,17 +113,17 @@ const MainContainer = () => {
           <Button 
             nameClass="button-filter" 
             nameButton="All" 
-            setFlagFilter={setFlagFilter} 
+            handleFilter={handleFilter} 
           />
           <Button
             nameClass="button-filter"
             nameButton="Done"
-            setFlagFilter={setFlagFilter}
+            handleFilter={handleFilter}
           />
           <Button
             nameClass="button-filter"
             nameButton="Undone"
-            setFlagFilter={setFlagFilter}
+            handleFilter={handleFilter}
           />
         </div>
         <div className="sort">
@@ -113,21 +132,29 @@ const MainContainer = () => {
             src={UpButtonImg}
             alt="sort up"
             className="img-button"
-            onClick={() => setFlagSort('Up')} />
+            onClick={() => handleSort('Up')} />
           <img
             src={DownButtonImg}
             alt="sort down"
             className="img-button"
-            onClick={() =>setFlagSort('Down')} />
+            onClick={() =>handleSort('Down')} />
         </div>
       </div>
       <TaskList
-        filterTasks={newArrTasks}
+        newArrTasks={newArrTasks}
         flagEdit={flagEdit}
         setFlagEdit={setFlagEdit}
         deleteTask={deleteTask}
         chahgeCheckBox={chahgeCheckBox}
-        changeTask={changeTask}
+      />
+      <Pagination 
+        className="pag"
+        total={countItems}
+        onChange={handlerPageNumber}
+        defaultPageSize={5}
+        current={pageNumber + 1}
+        showSizeChanger={false} 
+        hideOnSinglePage={true}
       />
     </div>
   );

@@ -5,9 +5,9 @@ import './style.scss';import './style.scss';
 const Button = ({
   nameClass,
   nameButton,
-  setFlagFilter
+  handleFilter
 }) => (
-    <button className={nameClass} onClick={() => setFlagFilter(nameButton)}>{nameButton}</button>
+    <button className={nameClass} onClick={() => handleFilter(nameButton)}>{nameButton}</button>
  )
 
 export default Button;

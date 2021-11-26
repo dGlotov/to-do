@@ -9,10 +9,14 @@
   border-radius: 10px;
 }
 
+.title {
+  margin: 15px 0;
+}
+
 .text-field {
   width: 50%;
   height: 30px;
-  margin: 1%;
+  margin: 10px 5px;
   padding: 4px;
   font-size: 16px;
   border-radius: 5px;
@@ -26,11 +30,13 @@
   align-items: center;
   justify-content: space-between;
   width: 80%;
+  margin: 20px 0;
 }
 
 .img-button {
   width: 40px;
   height: 40px;
+  margin: 0 7px;
 }
 
 .img-button:hover {
@@ -52,4 +58,12 @@
   align-items: center;
   justify-content: space-evenly;
   width: 40%;
+
+  p {
+    margin: 0;
+  }
+}
+
+.ant-pagination.pag {
+  margin: 10px;
 }
