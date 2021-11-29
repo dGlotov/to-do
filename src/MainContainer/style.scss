@@ -1,0 +1,58 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  min-height: 700px;
+  margin: 6%;
+  border: solid 2px;
+  border-radius: 10px;
+  
+  .title {
+    margin: 15px 0;
+  }
+  
+  /* container with filter and sort buttons */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    margin: 20px 0;
+    
+    /* filtration container */
+    .filter {
+      display: flex;
+      justify-content: space-evenly;
+      width: 60%;
+    }
+    
+    /* sort container */
+    .sort {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      width: 40%;
+    
+      p {
+        margin: 0;
+      }
+      
+      .img-button {
+        width: 40px;
+        height: 40px;
+        margin: 0 7px;
+      }
+      
+      .img-button:hover {
+        -webkit-filter: drop-shadow(3px 5px 5px #000);
+        filter: drop-shadow(3px 5px 5px #000);
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .ant-pagination.pag {
+    margin: 10px;
+  }
+}

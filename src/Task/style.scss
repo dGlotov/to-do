@@ -1,0 +1,52 @@
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 98%;
+  margin: 1%;
+  border: solid 2px;
+  border-radius: 10px;
+  font-size: 20px;  
+
+  p {
+    align-self: center;
+    width: 40%;
+    margin: 20px 1px;
+  }
+  .done {
+    text-decoration: line-through;
+    color: grey;
+  }
+  .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;  
+  }
+
+  .check.css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root.Mui-checked {
+    color: darkturquoise;
+  }  
+
+  .edit-input {
+    width: 40%;
+    margin: 1px;
+    max-height: 150px;
+    min-height: 55px;
+  }
+
+  ::-webkit-scrollbar {
+    opacity: 0;
+  }
+
+  .img-button {
+    width: 40px;
+    height: 40px;
+    margin: 0 7px;
+  }
+  
+  .img-button:hover {
+    -webkit-filter: drop-shadow(3px 5px 5px #000);
+    filter: drop-shadow(3px 5px 5px #000);
+    cursor: pointer;
+  }
+}
