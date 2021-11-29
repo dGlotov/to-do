@@ -17,9 +17,10 @@ const Task = ({
 }) => {
   const [editText, setEditText] = useState(item.name);
 
+  // функция ввода отредактированной задачи
   const textTask = (e, item) => {
     if (e.code === 'Enter') {
-      const trimTextInput = editText.trim().replace(/ /g, "");
+      const trimTextInput = editText.trim().replace(/\s+/g, " ");;
       if (!trimTextInput) {
         setEditText(item.name);
         return setFlagEdit('');
@@ -31,14 +32,15 @@ const Task = ({
     }
 
     if (e.code === 'Escape') {
-      setFlagEdit('');
+        setEditText(item.name);
+        setFlagEdit('');
     }
   }
 
 
 
   return (
-    <li className="task" onDoubleClick={() => setFlagEdit(item.id)}>
+    <li className="task">
       <Checkbox 
         icon={<FavoriteBorder />} 
         checkedIcon={<Favorite />}
@@ -48,8 +50,9 @@ const Task = ({
       />
 
       {flagEdit !== item.id 
-        ? <p>{item.name}</p> 
-        : <input 
+        ? <p className={`text ${item.isCheck && "done"}`} onDoubleClick={() => setFlagEdit(item.id)}>{item.name}</p>
+        : <textarea 
+            onBlur={() => {setFlagEdit(''); setEditText(item.name);}}
             autoFocus
             className="edit-input"
             type='text' 
@@ -58,7 +61,7 @@ const Task = ({
             onKeyUp={(e) => textTask(e, item)}
           />
       }
-      <p>{item.Date}</p>
+      <p  className={`date ${item.isCheck && "done"}`}>{item.Date}</p>
       <img 
         src={DeleteImg} 
         alt="delete"

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
+import Input from '../Input/';
 import TaskList from '../TaskList';
 import Button from '../Button/';
 import { Pagination } from 'antd';
-
-
 
 import UpButtonImg from '../images/up.png'
 import DownButtonImg from '../images/down.png'
@@ -17,7 +16,6 @@ const MainContainer = () => {
   }
 
   const [allTasks, setAllTasks] = useState(JSON.parse(localStorage.getItem('allTasks')));
-  const [textInput, setTextInput] = useState('');
   const [flagFilter, setFlagFilter] = useState('All');
   const [flagSort, setFlagSort] = useState('Down');
   const [flagEdit, setFlagEdit] = useState('');
@@ -26,51 +24,31 @@ const MainContainer = () => {
   const [countItems, setCountItems] = useState(0);
 
   useEffect (() => {
-    const _ = require('lodash');
-    let filterTasks = [];
+    let filterTasks = [...allTasks];
 
     localStorage.setItem('allTasks', JSON.stringify(allTasks));
-
-    if (flagFilter === 'All') filterTasks = allTasks;
     
-    if (flagFilter === 'Done') filterTasks = (allTasks.filter(task => task.isCheck));
+    // фильтрация массива по выполненным задачам
+    if (flagFilter === 'Done') filterTasks = (filterTasks.filter(task => task.isCheck));
   
-    if (flagFilter === 'Undone') filterTasks = (allTasks.filter(task => !task.isCheck));
+    // фильтрация массива по невыполненным задачам
+    if (flagFilter === 'Undone') filterTasks = (filterTasks.filter(task => !task.isCheck));
+    
+    // сортировка массива от новых элементом к более старым
+    if (flagSort === 'Down') filterTasks = filterTasks.reverse();
 
-    if (flagSort === 'Up') filterTasks = _.sortBy(filterTasks, 'Date');
-  
-    if (flagSort === 'Down') filterTasks = _.sortBy(filterTasks, 'Date').reverse();
-
-
+    // подсчет элементов на странице
     setCountItems(filterTasks.length);
 
+    // настройка отображения задач на странице
     filterTasks = filterTasks.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
 
+    // проверка ну пустую страницу
     if (filterTasks.length === 0 && pageNumber !== 0) setPageNumber(pageNumber -1);
 
     setNewArrTasks(filterTasks);
 
   }, [allTasks, flagEdit, flagFilter, flagSort, pageNumber]);
-
-  const entertTask = (e) => {
-    if (e.code === 'Enter') {
-      const trimTextInput = textInput.trim().replace(/ /g, "");
-      if (!trimTextInput) return setTextInput('');
-
-      const task = {
-        id: Math.round(Math.random() * 10000000),
-        name: trimTextInput,
-        isCheck: false,
-        Date: new Date().toLocaleString()
-      };
-      setAllTasks([...allTasks, task])
-      setTextInput('');
-
-      setPageNumber(0);
-      setFlagFilter('All');
-      setFlagSort('Down');
-    }
-  }
 
   const handlerPageNumber = (page, pageSize) => setPageNumber(page - 1);
 
@@ -79,6 +57,7 @@ const MainContainer = () => {
     setPageNumber(0);
   }
 
+  // функция изменения статуса Done Undone
   const chahgeCheckBox = (id) => {
     setAllTasks(allTasks.map(item => {
       if (item.id === id) {
@@ -93,6 +72,7 @@ const MainContainer = () => {
     setPageNumber(0);
   }
 
+  // функция удаления задач
   const deleteTask = (id) => setAllTasks(allTasks.filter(element => element.id !== id));
 
   return (
@@ -100,28 +80,26 @@ const MainContainer = () => {
       <h1 className="title">
         To Do
       </h1>
-      <input
-        autoFocus
-        className="text-field"
-        placeholder="I want to..."
-        value={textInput}
-        onChange={e => {setTextInput(e.target.value)}}
-        onKeyUp={entertTask}
-         />
+      <Input
+        allTasks={allTasks}
+        setAllTasks={setAllTasks}
+        setFlagSort={setFlagSort}
+        handleFilter={handleFilter}
+      />
       <div className="nav">
         <div className="filter">
           <Button 
-            nameClass="button-filter" 
+            nameClass={`button-filter ${(flagFilter === "All") && "active"}`} 
             nameButton="All" 
             handleFilter={handleFilter} 
           />
           <Button
-            nameClass="button-filter"
+            nameClass={`button-filter ${(flagFilter === "Done") && "active"}`}
             nameButton="Done"
             handleFilter={handleFilter}
           />
           <Button
-            nameClass="button-filter"
+            nameClass={`button-filter ${(flagFilter === "Undone") && "active"}`}
             nameButton="Undone"
             handleFilter={handleFilter}
           />
