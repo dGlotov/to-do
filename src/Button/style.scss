@@ -15,3 +15,9 @@
   filter: drop-shadow(3px 5px 5px #000);
   cursor: pointer;
 }
+
+@media screen and (max-width: 380px) {
+  .button-filter {
+    width: 80px;
+  }
+}

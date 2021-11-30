@@ -56,3 +56,52 @@
     margin: 10px;
   }
 }
+
+@media screen and (max-width: 1200px) {
+  .main {
+    width: 90%;
+    
+      .nav {
+        flex-wrap: wrap;
+        margin: 10px 0;
+
+        .filter {
+          min-width: 340px;
+          margin: 10px 0;
+        }
+
+        .sort {
+          margin: 10px 0;
+          width: 60%;
+
+          .img-button {
+            width: 30px;
+            height: 30px;
+            margin: 0 7px;
+          }
+        }
+      }
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .main {
+    width: 98%;
+    border: none;
+
+    .nav {
+      width: 90%;
+      flex-wrap: wrap;
+      margin: 10px 0;
+      justify-content: center;
+
+      .filter {
+        min-width: 255px;
+      }
+
+      .sort {
+        min-width: 255px;
+      }
+    }
+  }
+}
