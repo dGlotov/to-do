@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import axios from "axios";
 
 import Checkbox from '@mui/material/Checkbox';
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
@@ -10,31 +11,39 @@ import './style.scss';
 
 const Task = ({
   item,
-  setFlagEdit,
   deleteTask,
-  flagEdit,
   chahgeCheckBox
 }) => {
   const [editText, setEditText] = useState(item.name);
+  const [flagEdit, setFlagEdit] = useState('');
+
+  const date = new Date(Date.parse(item.createdAt)).toLocaleString();
 
   // функция ввода отредактированной задачи
-  const textTask = (e, item) => {
-    if (e.code === 'Enter') {
-      const trimTextInput = editText.trim().replace(/\s+/g, " ");;
-      if (!trimTextInput) {
-        setEditText(item.name);
-        return setFlagEdit('');
-      } 
-  
-      item.name = trimTextInput;
-      setEditText(trimTextInput);
-      setFlagEdit('');
+  const textTask = async (e, item) => {
+    try {
+      if (e.code === 'Enter') {
+        const trimTextInput = editText.trim().replace(/\s+/g, " ");;
+        if (!trimTextInput) {
+          setEditText(item.name);
+          return setFlagEdit('');
+        } 
+        await axios.patch(`https://todo-api-learning.herokuapp.com/v1/task/4/${item.uuid}`, {
+          name: trimTextInput,
+          done: item.done
+        })
+          setEditText(trimTextInput);
+          setFlagEdit('');
     }
-
     if (e.code === 'Escape') {
         setEditText(item.name);
         setFlagEdit('');
     }
+  }
+    catch (err) {
+      // setErrorMessage(err.response.data.message);
+    }
+
   }
 
 
@@ -44,13 +53,13 @@ const Task = ({
       <Checkbox 
         icon={<FavoriteBorder />} 
         checkedIcon={<Favorite />}
-        checked={item.isCheck}
-        onChange={() => chahgeCheckBox(item.id)} 
+        checked={item.done}
+        onChange={() => chahgeCheckBox(item)} 
         className='check'
       />
 
-      {flagEdit !== item.id 
-        ? <p className={`text ${item.isCheck && "done"}`} onDoubleClick={() => setFlagEdit(item.id)}>{item.name}</p>
+      {flagEdit !== item.uuid 
+        ? <p className={`text ${item.done && "done"}`} onDoubleClick={() => setFlagEdit(item.uuid)}>{editText}</p>
         : <textarea 
             onBlur={() => {setFlagEdit(''); setEditText(item.name);}}
             autoFocus
@@ -61,12 +70,12 @@ const Task = ({
             onKeyUp={(e) => textTask(e, item)}
           />
       }
-      <p  className={`date ${item.isCheck && "done"}`}>{item.Date}</p>
+      <p  className={`date ${item.done && "done"}`}>{date}</p>
       <img 
         src={DeleteImg} 
         alt="delete"
         className="img-button"
-        onClick={() => deleteTask(item.id)} />
+        onClick={() => deleteTask(item.uuid)} />
     </li> 
   )
 }
