@@ -14,7 +14,7 @@ const TaskList = ({
   <ul className="task-list">
     {newArrTasks.map((item, index) => 
       <Task 
-        key={`item-${item.id}`}
+        key={`item-${item.uuid}`}
         item={item}
         setFlagEdit={setFlagEdit}
         deleteTask={deleteTask}

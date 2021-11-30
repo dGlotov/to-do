@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 import Input from '../Input/';
 import TaskList from '../TaskList';
 import Button from '../Button/';
+
 import { Pagination } from 'antd';
+
+import Alert from '@mui/material/Alert';
 
 import UpButtonImg from '../images/up.png'
 import DownButtonImg from '../images/down.png'
@@ -11,44 +15,46 @@ import DownButtonImg from '../images/down.png'
 import './style.scss';
 
 const MainContainer = () => {
-  if (JSON.parse(localStorage.getItem('allTasks')) === null) {
-    localStorage.setItem('allTasks', JSON.stringify([]));
-  }
-
-  const [allTasks, setAllTasks] = useState(JSON.parse(localStorage.getItem('allTasks')));
+  const [allTasks, setAllTasks] = useState([]);
   const [flagFilter, setFlagFilter] = useState('All');
   const [flagSort, setFlagSort] = useState('Down');
-  const [flagEdit, setFlagEdit] = useState('');
-  const [newArrTasks, setNewArrTasks] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
   const [countItems, setCountItems] = useState(0);
+  const [getTask, setGetTask] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect (() => {
-    let filterTasks = [...allTasks];
+    const statusFilter =flagFilter === 'All'
+      ? "" 
+      : flagFilter === 'Done'
+        ? "filterBy=done" : "filterBy=undone";
+          
+    const statusSort = flagSort === "Down" ? "&order=desc" : "&order=asc";
+    const href = `https://todo-api-learning.herokuapp.com/v1/tasks/4?${statusFilter}${statusSort}`;
 
-    localStorage.setItem('allTasks', JSON.stringify(allTasks));
-    
-    // фильтрация массива по выполненным задачам
-    if (flagFilter === 'Done') filterTasks = (filterTasks.filter(task => task.isCheck));
+    axios.get(href).then(res => {
+      const arr = res.data.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
+      setCountItems(res.data.length);
+      setAllTasks(arr);
+      setErrorMessage('');
+    }).catch(err => setErrorMessage(err.response.data.message));
+  }, [pageNumber, flagSort, flagFilter, getTask]);
+
   
-    // фильтрация массива по невыполненным задачам
-    if (flagFilter === 'Undone') filterTasks = (filterTasks.filter(task => !task.isCheck));
-    
-    // сортировка массива от новых элементом к более старым
-    if (flagSort === 'Down') filterTasks = filterTasks.reverse();
-
-    // подсчет элементов на странице
-    setCountItems(filterTasks.length);
-
-    // настройка отображения задач на странице
-    filterTasks = filterTasks.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
-
-    // проверка ну пустую страницу
-    if (filterTasks.length === 0 && pageNumber !== 0) setPageNumber(pageNumber -1);
-
-    setNewArrTasks(filterTasks);
-
-  }, [allTasks, flagEdit, flagFilter, flagSort, pageNumber]);
+  const entertTask = async (name) => {
+    try {
+      await axios.post('https://todo-api-learning.herokuapp.com/v1/task/4', {
+        name,
+        done: false,
+      })
+      handleFilter('All');
+      setFlagSort('Down');
+      setGetTask(!getTask);
+    }
+    catch(err) {
+      setErrorMessage(err.response.data.message);
+    }
+  }
 
   const handlerPageNumber = (page, pageSize) => setPageNumber(page - 1);
 
@@ -58,13 +64,17 @@ const MainContainer = () => {
   }
 
   // функция изменения статуса Done Undone
-  const chahgeCheckBox = (id) => {
-    setAllTasks(allTasks.map(item => {
-      if (item.id === id) {
-        item.isCheck = !item.isCheck
-      }
-      return item;
-    }))
+  const chahgeCheckBox = async (item) => {
+    try {
+      await axios.patch(`https://todo-api-learning.herokuapp.com/v1/task/4/${item.uuid}`, {
+        name: item.name,
+        done: !item.done
+      })
+      setGetTask(!getTask);
+    }
+    catch (err) {
+      setErrorMessage(err.response.data.message);
+    }
   }
 
   const handleSort = (newSort) => {
@@ -73,7 +83,16 @@ const MainContainer = () => {
   }
 
   // функция удаления задач
-  const deleteTask = (id) => setAllTasks(allTasks.filter(element => element.id !== id));
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`https://todo-api-learning.herokuapp.com/v1/task/4/${id}`);
+      if (allTasks.length === 1 && pageNumber !== 0) setPageNumber(pageNumber -1);
+      setGetTask(!getTask);
+    }
+    catch(err) {
+      setErrorMessage(err.response.data.message);
+    }
+  }
 
   return (
     <div className="main">
@@ -81,10 +100,7 @@ const MainContainer = () => {
         To Do
       </h1>
       <Input
-        allTasks={allTasks}
-        setAllTasks={setAllTasks}
-        setFlagSort={setFlagSort}
-        handleFilter={handleFilter}
+        entertTask={entertTask}
       />
       <div className="nav">
         <div className="filter">
@@ -119,12 +135,11 @@ const MainContainer = () => {
         </div>
       </div>
       <TaskList
-        newArrTasks={newArrTasks}
-        flagEdit={flagEdit}
-        setFlagEdit={setFlagEdit}
+        newArrTasks={allTasks}
         deleteTask={deleteTask}
         chahgeCheckBox={chahgeCheckBox}
       />
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       <Pagination 
         className="pag"
         total={countItems}
