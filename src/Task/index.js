@@ -32,11 +32,11 @@ const Task = ({
           name: trimTextInput,
           done: item.done
         })
-          setEditText(trimTextInput);
-          setFlagEdit('');
+        setEditText(trimTextInput);
+        setFlagEdit('');
     }
     if (e.code === 'Escape') {
-        setEditText(item.name);
+        setEditText(editText);
         setFlagEdit('');
     }
   }

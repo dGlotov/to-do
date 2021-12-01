@@ -1,55 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import Input from '../Input/';
+import Input from '../Input';
+import FilterBy from '../FilterBy';
+import SortBy from '../SortBy';
 import TaskList from '../TaskList';
-import Button from '../Button/';
 
 import { Pagination } from 'antd';
 
 import Alert from '@mui/material/Alert';
 
-import UpButtonImg from '../images/up.png'
-import DownButtonImg from '../images/down.png'
-
 import './style.scss';
 
 const MainContainer = () => {
   const [allTasks, setAllTasks] = useState([]);
-  const [flagFilter, setFlagFilter] = useState('All');
-  const [flagSort, setFlagSort] = useState('Down');
+  const [sortByDate, setSortByDate] = useState('Down');
+  const [filterBy, setFilterBy] = useState('All');
   const [pageNumber, setPageNumber] = useState(0);
-  const [countItems, setCountItems] = useState(0);
-  const [getTask, setGetTask] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [countTasks, setCountTasks] = useState(0);
 
   useEffect (() => {
-    const statusFilter =flagFilter === 'All'
+    getTasks();
+  }, [pageNumber, sortByDate, filterBy]);
+
+  const getTasks = async () => {
+    try {
+      const statusFilter = filterBy === 'All'
       ? "" 
-      : flagFilter === 'Done'
+      : filterBy === 'Done'
         ? "filterBy=done" : "filterBy=undone";
           
-    const statusSort = flagSort === "Down" ? "&order=desc" : "&order=asc";
+    const statusSort = sortByDate === "Down" ? "&order=desc" : "&order=asc";
     const href = `https://todo-api-learning.herokuapp.com/v1/tasks/4?${statusFilter}${statusSort}`;
 
-    axios.get(href).then(res => {
-      const arr = res.data.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
-      setCountItems(res.data.length);
+      const result = await axios.get(href)
+      const arr = result.data.filter((item, index) => index >= (pageNumber * 5) && index < ((pageNumber + 1) * 5));
+      setCountTasks(result.data.length);
       setAllTasks(arr);
+      console.log('llllll');
       setErrorMessage('');
-    }).catch(err => setErrorMessage(err.response.data.message));
-  }, [pageNumber, flagSort, flagFilter, getTask]);
+    } catch (err) {
+      setErrorMessage(err.response.data.message);
+    }
+  } 
 
-  
   const entertTask = async (name) => {
     try {
       await axios.post('https://todo-api-learning.herokuapp.com/v1/task/4', {
         name,
         done: false,
       })
+      getTasks();
       handleFilter('All');
-      setFlagSort('Down');
-      setGetTask(!getTask);
+      setSortByDate('Down');
     }
     catch(err) {
       setErrorMessage(err.response.data.message);
@@ -59,7 +63,7 @@ const MainContainer = () => {
   const handlerPageNumber = (page, pageSize) => setPageNumber(page - 1);
 
   const handleFilter = (newFilter) => {
-    setFlagFilter(newFilter)
+    setFilterBy(newFilter)
     setPageNumber(0);
   }
 
@@ -70,7 +74,7 @@ const MainContainer = () => {
         name: item.name,
         done: !item.done
       })
-      setGetTask(!getTask);
+      getTasks();
     }
     catch (err) {
       setErrorMessage(err.response.data.message);
@@ -78,7 +82,7 @@ const MainContainer = () => {
   }
 
   const handleSort = (newSort) => {
-    setFlagSort(newSort)
+    setSortByDate(newSort)
     setPageNumber(0);
   }
 
@@ -87,7 +91,7 @@ const MainContainer = () => {
     try {
       await axios.delete(`https://todo-api-learning.herokuapp.com/v1/task/4/${id}`);
       if (allTasks.length === 1 && pageNumber !== 0) setPageNumber(pageNumber -1);
-      setGetTask(!getTask);
+      getTasks();
     }
     catch(err) {
       setErrorMessage(err.response.data.message);
@@ -103,36 +107,13 @@ const MainContainer = () => {
         entertTask={entertTask}
       />
       <div className="nav">
-        <div className="filter">
-          <Button 
-            nameClass={`button-filter ${(flagFilter === "All") && "active"}`} 
-            nameButton="All" 
-            handleFilter={handleFilter} 
-          />
-          <Button
-            nameClass={`button-filter ${(flagFilter === "Done") && "active"}`}
-            nameButton="Done"
-            handleFilter={handleFilter}
-          />
-          <Button
-            nameClass={`button-filter ${(flagFilter === "Undone") && "active"}`}
-            nameButton="Undone"
-            handleFilter={handleFilter}
-          />
-        </div>
-        <div className="sort">
-          <p>Sort by Date</p>
-          <img
-            src={UpButtonImg}
-            alt="sort up"
-            className="img-button"
-            onClick={() => handleSort('Up')} />
-          <img
-            src={DownButtonImg}
-            alt="sort down"
-            className="img-button"
-            onClick={() =>handleSort('Down')} />
-        </div>
+        <FilterBy 
+          handleFilter={handleFilter}
+          filterBy={filterBy}
+        />
+        <SortBy 
+          handleSort={handleSort}
+        />
       </div>
       <TaskList
         newArrTasks={allTasks}
@@ -142,11 +123,11 @@ const MainContainer = () => {
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       <Pagination 
         className="pag"
-        total={countItems}
+        total={countTasks}
         onChange={handlerPageNumber}
         defaultPageSize={5}
         current={pageNumber + 1}
-        showSizeChanger={false} 
+        showSizeChanger={false}
         hideOnSinglePage={true}
       />
     </div>
