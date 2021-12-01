@@ -12,7 +12,8 @@ import './style.scss';
 const Task = ({
   item,
   deleteTask,
-  chahgeCheckBox
+  chahgeCheckBox,
+  setErrorMessage
 }) => {
   const [editText, setEditText] = useState(item.name);
   const [flagEdit, setFlagEdit] = useState('');
@@ -41,7 +42,7 @@ const Task = ({
     }
   }
     catch (err) {
-      // setErrorMessage(err.response.data.message);
+      setErrorMessage(err.response.data.message);
     }
 
   }

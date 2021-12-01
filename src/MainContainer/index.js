@@ -8,6 +8,7 @@ import TaskList from '../TaskList';
 
 import { Pagination } from 'antd';
 
+import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
 import './style.scss';
@@ -116,11 +117,11 @@ const MainContainer = () => {
         />
       </div>
       <TaskList
+        setErrorMessage={setErrorMessage}
         newArrTasks={allTasks}
         deleteTask={deleteTask}
         chahgeCheckBox={chahgeCheckBox}
       />
-      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       <Pagination 
         className="pag"
         total={countTasks}
@@ -130,6 +131,14 @@ const MainContainer = () => {
         showSizeChanger={false}
         hideOnSinglePage={true}
       />
+      <Snackbar
+        open={errorMessage ? true : false}
+        anchorOrigin={{vertical: "top", horizontal: "left"}}
+        autoHideDuration={2000}
+        onClose={() => setErrorMessage('')}
+      >
+        <Alert severity="error">{errorMessage}</Alert>
+      </Snackbar>
     </div>
   );
 }

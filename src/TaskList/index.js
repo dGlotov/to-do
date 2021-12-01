@@ -6,19 +6,17 @@ import './style.scss';
 
 const TaskList = ({
   newArrTasks,
-  setFlagEdit,
   deleteTask,
-  flagEdit,
-  chahgeCheckBox
+  chahgeCheckBox,
+  setErrorMessage
 }) => (
   <ul className="task-list">
     {newArrTasks.map((item, index) => 
       <Task 
         key={`item-${item.uuid}`}
         item={item}
-        setFlagEdit={setFlagEdit}
+        setErrorMessage={setErrorMessage}
         deleteTask={deleteTask}
-        flagEdit={flagEdit}
         chahgeCheckBox={chahgeCheckBox}
       />
     )}
