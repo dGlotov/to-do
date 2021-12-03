@@ -1,84 +1,81 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-import Checkbox from '@mui/material/Checkbox';
-import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
-import Favorite from '@mui/icons-material/Favorite';
+import Checkbox from "@mui/material/Checkbox";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Favorite from "@mui/icons-material/Favorite";
 
 import DeleteImg from "../images/delete.png";
 
-import './style.scss';
+import "./style.scss";
 
-const Task = ({
-  item,
-  deleteTask,
-  chahgeCheckBox,
-  setErrorMessage
-}) => {
+const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
   const [editText, setEditText] = useState(item.name);
-  const [flagEdit, setFlagEdit] = useState('');
+  const [flagEdit, setFlagEdit] = useState("");
 
-  const date = new Date(Date.parse(item.createdAt)).toLocaleString();
+  const date = new Date(Date.parse(item.created_at)).toLocaleString();
 
   // функция ввода отредактированной задачи
   const textTask = async (e, item) => {
     try {
-      if (e.code === 'Enter') {
-        const trimTextInput = editText.trim().replace(/\s+/g, " ");;
-        if (!trimTextInput) {
+      if (e.code === "Enter") {
+        const trimTextInput = editText.trim().replace(/\s+/g, " ");
+        if (!trimTextInput || trimTextInput.length < 2) {
           setEditText(item.name);
-          return setFlagEdit('');
-        } 
-        await axios.patch(`https://todo-api-learning.herokuapp.com/v1/task/4/${item.uuid}`, {
+          return setFlagEdit("");
+        }
+        await axios.patch(`https://my-app-back-end-for-to-do.herokuapp.com/task/${item.uuid}`, {
           name: trimTextInput,
-          done: item.done
-        })
+        });
         setEditText(trimTextInput);
-        setFlagEdit('');
-    }
-    if (e.code === 'Escape') {
+        setFlagEdit("");
+      }
+      if (e.code === "Escape") {
         setEditText(editText);
-        setFlagEdit('');
-    }
-  }
-    catch (err) {
+        setFlagEdit("");
+      }
+    } catch (err) {
       setErrorMessage(err.response.data.message);
     }
-
-  }
-
-
+  };
 
   return (
     <li className="task">
-      <Checkbox 
-        icon={<FavoriteBorder />} 
+      <Checkbox
+        icon={<FavoriteBorder />}
         checkedIcon={<Favorite />}
         checked={item.done}
-        onChange={() => chahgeCheckBox(item)} 
-        className='check'
+        onChange={() => chahgeCheckBox(item)}
+        className="check"
       />
 
-      {flagEdit !== item.uuid 
-        ? <p className={`text ${item.done && "done"}`} onDoubleClick={() => setFlagEdit(item.uuid)}>{editText}</p>
-        : <textarea 
-            onBlur={() => {setFlagEdit(''); setEditText(item.name);}}
-            autoFocus
-            className="edit-input"
-            type='text' 
-            value={editText} 
-            onChange={(e) => setEditText(e.target.value)} 
-            onKeyUp={(e) => textTask(e, item)}
-          />
-      }
-      <p  className={`date ${item.done && "done"}`}>{date}</p>
-      <img 
-        src={DeleteImg} 
+      {flagEdit !== item.uuid ? (
+        <p className={`text ${item.done && "done"}`} onDoubleClick={() => setFlagEdit(item.uuid)}>
+          {editText}
+        </p>
+      ) : (
+        <textarea
+          onBlur={() => {
+            setFlagEdit("");
+            setEditText(item.name);
+          }}
+          autoFocus
+          className="edit-input"
+          type="text"
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          onKeyUp={(e) => textTask(e, item)}
+        />
+      )}
+      <p className={`date ${item.done && "done"}`}>{date}</p>
+      <img
+        src={DeleteImg}
         alt="delete"
         className="img-button"
-        onClick={() => deleteTask(item.uuid)} />
-    </li> 
-  )
-}
+        onClick={() => deleteTask(item.uuid)}
+      />
+    </li>
+  );
+};
 
 export default Task;
