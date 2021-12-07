@@ -13,7 +13,7 @@ const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
   const [editText, setEditText] = useState(item.name);
   const [flagEdit, setFlagEdit] = useState("");
 
-  const date = new Date(Date.parse(item.created_at)).toLocaleString();
+  const date = new Date(Date.parse(item.createdAt)).toLocaleString();
 
   // функция ввода отредактированной задачи
   const textTask = async (e, item) => {
@@ -24,7 +24,7 @@ const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
           setEditText(item.name);
           return setFlagEdit("");
         }
-        await axios.patch(`https://my-app-back-end-for-to-do.herokuapp.com/task/${item.uuid}`, {
+        await axios.patch(`http://localhost:7000/task/${item.uuid}`, {
           name: trimTextInput,
         });
         setEditText(trimTextInput);

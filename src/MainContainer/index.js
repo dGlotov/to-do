@@ -31,7 +31,7 @@ const MainContainer = () => {
         filterBy === "All" ? "" : filterBy === "Done" ? "filterBy=done" : "filterBy=undone";
 
       const statusSort = sortByDate === "Down" ? "&sortBy=desc" : "&sortBy=asc";
-      const href = `https://my-app-back-end-for-to-do.herokuapp.com/tasks?${statusFilter}${statusSort}&page=${pageNumber}`;
+      const href = `http://localhost:7000/tasks?${statusFilter}${statusSort}&page=${pageNumber}`;
       let result = await axios.get(href);
       setCountTasks(result.data.countTasks);
       setAllTasks(result.data.arrTasks);
@@ -43,7 +43,7 @@ const MainContainer = () => {
 
   const entertTask = async (name) => {
     try {
-      await axios.post("https://my-app-back-end-for-to-do.herokuapp.com/task", { name });
+      await axios.post("http://localhost:7000/task", { name });
       getTasks();
       handleFilter("All");
       setSortByDate("Down");
@@ -62,7 +62,7 @@ const MainContainer = () => {
   // функция изменения статуса Done Undone
   const chahgeCheckBox = async (item) => {
     try {
-      await axios.patch(`https://my-app-back-end-for-to-do.herokuapp.com/task/${item.uuid}`, {
+      await axios.patch(`http://localhost:7000/task/${item.uuid}`, {
         done: !item.done,
       });
       getTasks();
@@ -79,11 +79,11 @@ const MainContainer = () => {
   // функция удаления задач
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`https://my-app-back-end-for-to-do.herokuapp.com/task/${id}`);
-      if (allTasks.length === 1 && pageNumber !== 0) setPageNumber(pageNumber - 1);
+      await axios.delete(`http://localhost:7000/task/${id}`);
+      if (allTasks.length === 1 && pageNumber !== 1) setPageNumber(pageNumber - 1);
       getTasks();
     } catch (err) {
-      // setErrorMessage(err.response.data.message);
+      setErrorMessage(err.response.data.message);
     }
   };
 
