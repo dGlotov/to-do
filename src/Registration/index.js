@@ -24,7 +24,7 @@ const Registration = ({ title, nameLink, nameButton }) => {
       if (password !== repiatPassword) return console.log("asdasd");
 
       const result = await axios.post(`http://localhost:7000/${nameButton}`, { login, password });
-
+      localStorage.setItem("token", result.data.accessToken);
       navigate("/main");
     } catch (err) {
       console.log(err);

@@ -32,7 +32,14 @@ const MainContainer = () => {
 
       const statusSort = sortByDate === "Down" ? "&sortBy=desc" : "&sortBy=asc";
       const href = `http://localhost:7000/tasks?${statusFilter}${statusSort}&page=${pageNumber}`;
-      let result = await axios.get(href);
+      const accessToken = localStorage.getItem("token");
+      let result = await axios.get(href, {
+        headers: {
+          Authorization: `${accessToken}`,
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      });
       setCountTasks(result.data.countTasks);
       setAllTasks(result.data.arrTasks);
       setErrorMessage("");
@@ -43,7 +50,18 @@ const MainContainer = () => {
 
   const entertTask = async (name) => {
     try {
-      await axios.post(`http://localhost:7000/task/`, { name });
+      const accessToken = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:7000/task/`,
+        { name },
+        {
+          headers: {
+            Authorization: `${accessToken}`,
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+        }
+      );
       getTasks();
       handleFilter("All");
       setSortByDate("Down");
@@ -62,9 +80,20 @@ const MainContainer = () => {
   // функция изменения статуса Done Undone
   const chahgeCheckBox = async (item) => {
     try {
-      await axios.patch(`http://localhost:7000/task/${item.uuid}`, {
-        done: !item.done,
-      });
+      const accessToken = localStorage.getItem("token");
+      await axios.patch(
+        `http://localhost:7000/task/${item.uuid}`,
+        {
+          done: !item.done,
+        },
+        {
+          headers: {
+            Authorization: `${accessToken}`,
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+        }
+      );
       getTasks();
     } catch (err) {
       setErrorMessage(err.response.data.message);
@@ -79,7 +108,14 @@ const MainContainer = () => {
   // функция удаления задач
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://localhost:7000/task/${id}`);
+      const accessToken = localStorage.getItem("token");
+      await axios.delete(`http://localhost:7000/task/${id}`, {
+        headers: {
+          Authorization: `${accessToken}`,
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      });
       if (allTasks.length === 1 && pageNumber !== 1) setPageNumber(pageNumber - 1);
       getTasks();
     } catch (err) {
