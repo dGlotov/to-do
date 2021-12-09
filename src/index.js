@@ -1,13 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import MainContainer from './MainContainer/';
+import Registration from "./Registration";
+import MainContainer from "./MainContainer/";
 
-import './index.scss';
+import "./index.scss";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <MainContainer />
-  </React.StrictMode>,
-  document.getElementById('root')
+  <BrowserRouter>
+    <Routes>
+      <Route path="/main" element={<MainContainer />} />
+      <Route
+        path="/registration"
+        element={<Registration nameLink="login" nameButton="registration" />}
+      />
+      <Route path="/login" element={<Registration nameLink="registration" nameButton="login" />} />
+    </Routes>
+  </BrowserRouter>,
+  document.getElementById("root")
 );

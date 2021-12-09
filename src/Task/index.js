@@ -24,7 +24,7 @@ const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
           setEditText(item.name);
           return setFlagEdit("");
         }
-        await axios.patch(`https://my-app-todo-back-end.herokuapp.com/task/${item.uuid}`, {
+        await axios.patch(`http://localhost:7000/task/${item.uuid}`, {
           name: trimTextInput,
         });
         setEditText(trimTextInput);
