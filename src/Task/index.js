@@ -9,7 +9,7 @@ import DeleteImg from "../images/delete.png";
 
 import "./style.scss";
 
-const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
+const Task = ({ item, deleteTask, chahgeCheckBox, errorCatcher }) => {
   const [editText, setEditText] = useState(item.name);
   const [flagEdit, setFlagEdit] = useState("");
 
@@ -24,18 +24,30 @@ const Task = ({ item, deleteTask, chahgeCheckBox, setErrorMessage }) => {
           setEditText(item.name);
           return setFlagEdit("");
         }
-        await axios.patch(`http://localhost:7000/task/${item.uuid}`, {
-          name: trimTextInput,
-        });
-        setEditText(trimTextInput);
-        setFlagEdit("");
+
+        const accessToken = localStorage.getItem("token");
+        await axios.patch(
+          `http://localhost:7000/task/${item.uuid}`,
+          {
+            name: trimTextInput,
+          },
+          {
+            headers: {
+              Authorization: `${accessToken}`,
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json;charset=utf-8",
+            },
+          }
+        );
       }
       if (e.code === "Escape") {
         setEditText(editText);
         setFlagEdit("");
       }
     } catch (err) {
-      setErrorMessage(err.response.data.message);
+      errorCatcher(err);
+      setEditText(item.name);
+      setFlagEdit("");
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import axios from "axios";
 
 import Input from "../Input";
@@ -21,19 +22,28 @@ const MainContainer = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [countTasks, setCountTasks] = useState(0);
 
+  const navigate = useNavigate();
   useEffect(() => {
     getTasks();
   }, [pageNumber, sortByDate, filterBy]);
 
+  const errorCatcher = (err) => {
+    if (err.response.data.includes("jwt")) navigate("/login");
+    setErrorMessage(err.response.data);
+  };
+
   const getTasks = async () => {
     try {
+      if (!localStorage.getItem("token")) {
+        return navigate("/login");
+      }
       const statusFilter =
         filterBy === "All" ? "" : filterBy === "Done" ? "filterBy=done" : "filterBy=undone";
 
       const statusSort = sortByDate === "Down" ? "&sortBy=desc" : "&sortBy=asc";
       const href = `http://localhost:7000/tasks?${statusFilter}${statusSort}&page=${pageNumber}`;
       const accessToken = localStorage.getItem("token");
-      let result = await axios.get(href, {
+      const result = await axios.get(href, {
         headers: {
           Authorization: `${accessToken}`,
           "Access-Control-Allow-Origin": "*",
@@ -41,10 +51,10 @@ const MainContainer = () => {
         },
       });
       setCountTasks(result.data.countTasks);
-      setAllTasks(result.data.arrTasks);
+      setAllTasks(result.data.tasks);
       setErrorMessage("");
     } catch (err) {
-      setErrorMessage(err.response.data.message);
+      errorCatcher(err);
     }
   };
 
@@ -66,7 +76,7 @@ const MainContainer = () => {
       handleFilter("All");
       setSortByDate("Down");
     } catch (err) {
-      setErrorMessage(err.response.data.message);
+      errorCatcher(err);
     }
   };
 
@@ -96,7 +106,7 @@ const MainContainer = () => {
       );
       getTasks();
     } catch (err) {
-      setErrorMessage(err.response.data.message);
+      errorCatcher(err);
     }
   };
 
@@ -119,42 +129,46 @@ const MainContainer = () => {
       if (allTasks.length === 1 && pageNumber !== 1) setPageNumber(pageNumber - 1);
       getTasks();
     } catch (err) {
-      setErrorMessage(err.response.data.message);
+      errorCatcher(err);
     }
   };
 
   return (
-    <div className="main">
-      <h1 className="title">To Do</h1>
-      <Input entertTask={entertTask} />
-      <div className="nav">
-        <FilterBy handleFilter={handleFilter} filterBy={filterBy} />
-        <SortBy handleSort={handleSort} />
-      </div>
-      <TaskList
-        setErrorMessage={setErrorMessage}
-        newArrTasks={allTasks}
-        deleteTask={deleteTask}
-        chahgeCheckBox={chahgeCheckBox}
-      />
-      <Pagination
-        className="pag"
-        total={countTasks}
-        onChange={handlerPageNumber}
-        defaultPageSize={5}
-        current={pageNumber}
-        showSizeChanger={false}
-        hideOnSinglePage={true}
-      />
-      <Snackbar
-        open={errorMessage ? true : false}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-        autoHideDuration={2000}
-        onClose={() => setErrorMessage("")}
-      >
-        <Alert severity="error">{errorMessage}</Alert>
-      </Snackbar>
-    </div>
+    <>
+      {localStorage.getItem("token") && (
+        <div className="main">
+          <h1 className="title">To Do</h1>
+          <Input entertTask={entertTask} />
+          <div className="nav">
+            <FilterBy handleFilter={handleFilter} filterBy={filterBy} />
+            <SortBy handleSort={handleSort} />
+          </div>
+          <TaskList
+            errorCatcher={errorCatcher}
+            newArrTasks={allTasks}
+            deleteTask={deleteTask}
+            chahgeCheckBox={chahgeCheckBox}
+          />
+          <Pagination
+            className="pag"
+            total={countTasks}
+            onChange={handlerPageNumber}
+            defaultPageSize={5}
+            current={pageNumber}
+            showSizeChanger={false}
+            hideOnSinglePage={true}
+          />
+          <Snackbar
+            open={errorMessage ? true : false}
+            anchorOrigin={{ vertical: "top", horizontal: "left" }}
+            autoHideDuration={2000}
+            onClose={() => setErrorMessage("")}
+          >
+            <Alert severity="error">{errorMessage}</Alert>
+          </Snackbar>
+        </div>
+      )}
+    </>
   );
 };
 
