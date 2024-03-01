@@ -12,6 +12,7 @@ import "./style.scss";
 const Task = ({ item, deleteTask, chahgeCheckBox, errorCatcher }) => {
   const [editText, setEditText] = useState(item.name);
   const [flagEdit, setFlagEdit] = useState("");
+  const [asd, setAsd] = useState('asd');
 
   const date = new Date(Date.parse(item.createdAt)).toLocaleString();
 
